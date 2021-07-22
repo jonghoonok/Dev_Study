@@ -27,10 +27,10 @@ Caching
 [Testing](../General/Testing/README.md)
 [CI-CD](../General/CI-CD/README.md)
 Design And Development Principle
-[Architecture Patterns](./Architecture-Patterns/README.md)
+[Architecture Patterns](./Architecture Patterns/README.md)
 Search Engines
 Message Brockers
-[Containerization vs Virtualization](./Containerization-vs-Virtualization)
+[Containerization vs Virtualization](./Containerization vs Virtualization)
 GraphQL
 GraphDB
 GraphQL
