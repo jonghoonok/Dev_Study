@@ -136,7 +136,7 @@ SaaS
      - Jenkins 등의 빌드 도구가 사용됨
   3. 실행 환경으로 배포
 - 지속적 배포
-  - **continous delivery** : 실행 환경 반영 전 단계까지 배포
+  - **continuous delivery** : 실행 환경 반영 전 단계까지 배포
     - 승인 및 배포 담당자의 허가를 받아 수동으로 실행 환경 반영
     - 대부분의 기업에서 채택하고 있는 방식
   - **continuous deployment** : 실행 환경까지 자동으로 배포
