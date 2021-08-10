@@ -6,7 +6,7 @@
 
 (주의) 이 문서는 실무에서 RDBMS를 이용하는 방법의 실전 위주 정보를 정리한 자료임.
 
-DBA 관련 정보는 [DB](../DB/README.md)
+DB 이론과 관련된 정보는 [DB](../DB/README.md)
 
 데이터베이스 이론 관련 정보는 [DB](https://github.com/jonghoonok/CS_Study/tree/main/DB)
 
@@ -87,6 +87,8 @@ DBA 관련 정보는 [DB](../DB/README.md)
 
 
 
+
+
 DBMS란?
 
 - Database Management System
@@ -94,6 +96,8 @@ DBMS란?
   - 하나의 DBMS를 통해 관리: 데이터를 관리하는 방식이 통합됨
   - 중복 및 누락 방지: 하나의 소프트웨어가 데이터를 관리
   - 공동으로 실시간 사용 가능: 데이터가 응용프로그램에 독립적이므로 프로그램 업데이트 시에도 사용 가능
+
+
 
 
 
@@ -130,18 +134,14 @@ DBMS란?
       | 속성(attribute)        | 데이터의 종류, 특성, 상태              | 열(column)           |
       | **관계(relationship)** | 개체 간 또는 속성 간의 연관성을 나타냄 | 외래키               |
 
-- 릴레이션(relation)과 관계(relationship)의 차이 [링크](https://m.blog.naver.com/PostView.nhn?blogId=ej5811&logNo=80191263951&proxyReferer=https:%2F%2Fwww.google.com%2F)
 
-  - 릴레이션: 집합x와 집합y 사이에 관계 R을 만족하는 **모든 순서쌍**
-    - 테이블이 집합 간의 cartesian product를 생성한다는 것을 생각해보자
-    - 집합이론에서는 relation, 논리 데이터 모델링에서는 entity, 관계형 데이터베이스에서는 table
-  - 관계: 하나 또는 두 개의 entity type으로부터 업무적인 이유에 의해 entity가 연결되어 있는 **페어링의 집합**
-    - 예) entity type "주문"의 entity인 "주문번호"가 entity type "주문상품"의 entity인 "상품코드"와 연결되어 페어링을 이루고 있음
-    - 페어링은 관계의 멤버이고, 관계는 페어링의 집합체
+
 
 
 
 ### 1.2. 관계형 데이터 베이스
+
+
 
 
 
@@ -151,6 +151,8 @@ DBMS란?
   - 테이블(table)로 이루어져 있으며, 이 테이블은 키(key)와 값(value)의 **관계**를 나타냄
 - 관계형 데이터베이스를 관리하는 시스템은 **RDBMS**(Relational Database Management System)이라 함
   - MS-SQL, MySQL, MariaDB, PostgreSQL, DB2 등
+
+
 
 
 
@@ -172,6 +174,8 @@ SQL
 
 
 
+
+
 관계형 데이터베이스의 구성 요소
 
 - 테이블
@@ -181,6 +185,8 @@ SQL
 - 키
   - 수많은 데이터를 구별할 수 있는 유일한 값
   - 슈퍼키, 후보키, 기본키, 보조키(대체키), 외래키로 분류할 수 있음 
+
+
 
 
 
@@ -208,6 +214,8 @@ SQL
 - 복합키
   - 여러 열을 조합하여 기본키 역할을 할 수 있게 만든 키
   - 예) 과목 정보 테이블에서 (과목코드+교수+강의시간) 조합으로 수업을 유일하게 식별함 
+
+
 
 
 
@@ -248,6 +256,8 @@ SQL
 
 
 
+
+
 데이터를 조회하는 3가지 방법
 
 - SELECTION
@@ -261,7 +271,11 @@ SQL
 
 
 
+
+
 ### 2.1. SELECT문의 기본 형식
+
+
 
 
 
@@ -273,43 +287,25 @@ SQL
 
 
 
+
+
 중복 제거
 
-- DISTINCT를 이용하여 중복을 제거하고 특정 데이터 종류만 확인 가능
-
-- ```SQL
-  SELECT DISTINCT DEPTNO
-  	FROM EMP;
-  ```
-
-- ALL을 이용하면 반대로 중복을 제거하지 않고 그대로 출력함
-
-- ```SQL
-  SELECT ALL DEPTNO
-  	FROM EMP;
-  ```
-
-
-
-정렬
-
-- ORDER BY를 사용하여 출력 데이터를 정렬함
-
-- SELECT문의 제일 마지막에 `ORDER BY [정렬하려는 열(여러 개 가능)] [정렬 옵션]` 을 붙여 사용
-
-  - 정렬 옵션은 ASC(기본 값), DESC 존재
+- **DISTINCT**를 이용하여 중복을 제거하고 특정 데이터 종류만 확인 가능
 
   - ```SQL
-    SELECT *
-    	FROM EMP
-    ORDER BY SAL;
+    SELECT DISTINCT DEPTNO
+    	FROM EMP;
     ```
 
-  - 여러 개 조건을 붙이면 먼저 오는 열을 우선 정렬하고 값이 같으면 그 다음 열 기준으로 정렬
+- **ALL**을 이용하면 반대로 중복을 제거하지 않고 그대로 출력함
 
-    - `ORDER BY DEPTNO DESC, ENAME;`
+  - ```SQL
+    SELECT ALL DEPTNO
+    	FROM EMP;
+    ```
 
-- 정렬은 느리기 때문에 **가능하면 사용하지 않을 것**을 권장
+
 
 
 
@@ -328,19 +324,47 @@ SQL
     	FROM EMP;
     ```
 
-  - 별칭을 지정하는 방법
+- 별칭을 지정하는 방법
 
-    - 4가지가 있는데 보통 3번째를 많이 사용(한 칸 띄우기, 한 칸 띄우고 큰 따옴표, **한 칸 띄우고 AS**, 한 칸 띄우고 AS 다음에 큰 따옴표 )
+  - 한 칸 띄우기
+  - 한 칸 띄우고 큰 따옴표
+  - **한 칸 띄우고 AS** : 일반적으로 사용하는 방법
     - `SELECT ENAME, SAL, SAL*12+COMM AS ANNSAL, COMM FROM EMP;`
     - SQL문에 따옴표 사용이 좋지 않기 때문: 프로그래밍 언어에서 문자열로 ("SQL") 사용 시 에러 발생
+    - 또 AS를 사용하면 어떤 단어가 별칭인지 알아보기 편하다는 장점도 존재
+  - 한 칸 띄우고 AS 다음에 큰 따옴표 
 
 
+
+
+
+정렬
+
+- **ORDER BY**를 사용하여 출력 데이터를 정렬함
+
+- SELECT문의 제일 마지막에 `ORDER BY [정렬하려는 열(여러 개 가능)] [정렬 옵션]` 을 붙여 사용
+
+  - 정렬 옵션은 **ASC**(기본 값), **DESC** 존재
+
+  - ```SQL
+    SELECT *
+    	FROM EMP
+    ORDER BY SAL;
+    ```
+
+  - **여러 개 조건을 붙이면 먼저 오는 열을 우선 정렬**하고 값이 같으면 그 다음 열 기준으로 정렬
+
+    - `ORDER BY DEPTNO DESC, ENAME;`
+
+- 정렬은 느리기 때문에 **가능하면 사용하지 않을 것**을 권장
 
 
 
 
 
 ### 2.2. WHERE
+
+
 
 
 
@@ -360,72 +384,93 @@ WHERE
 
   - SQL문에서는 동등 연산자가 ==가 아니라 =임
 
-- WHERE문과 함께 사용하는 연산자
-
-  - **논리 연산자 AND, OR**을 이용하여 **여러 개의 조건식 적용도 가능**: 조건식 갯수는 무제한
-
-    - 여러 개 조건식이 묶여 있을 때 NOT을 이용하여 한번에 뒤집는 경우 많음
-
-  - **IN**을 이용하여 조건식 갯수를 줄일 수 있음
-
-    - OR을 여러 개 사용한 경우
-
-    - ```SQL
-      SELECT *
-      	FROM EMP
-      WHERE JOB = 'MANAGER'
-         OR JOB = 'SALESMAN'
-         OR JOB = 'CLERK';
-      ```
-
-    - IN을 사용한 경우
-
-    - ```SQL
-      SELECT *
-      	FROM EMP
-      WHERE JOB IN ('MANAGER', 'SALESMAN', 'CLERK');
-      ```
-
-  - **BETWEEN A AND B**를 이용하여 조회하기
-
-    - ```SQL
-      SELECT *
-      	FROM EMP
-      WHERE SAL BETWEEN 2000 AND 3000;
-      ```
-
-  - 일부 문자열이 포함된 데이터를 조회할 때 사용하는 **LIKE**
-
-    - ENAME 열 값이 대문자 S로 시작하는 데이터를 조회하라는 SQL문
-
-    - ```SQL
-      SELECT *
-      	FROM EMP
-      WHERE ENAME LIKE 'S%';
-      ```
-
-    - 와일드 카드: ( `%, _` ) 특정 문자 또는 문자열을 대체함
-
-  - **IS NULL**을 이용해 데이터가 NULL인 행을 조회하기
-
-    - ```SQL
-      SELECT *
-      	FROM EMP
-      WHERE COMM IS NULL;
-      ```
-
-    - NULL은 비교 연산자로 비교하면 결과 값도 NULL이 되기 때문에 IS NULL을 이용해야 함
-
-  - **집합 연산자**
-
-    - 두 개 이상의 SELECT문의 결과 값을 연결함
-    - 열 갯수와 각각의 열의 자료형이 일치해야(열 이름은 달라도 ok)연결 가능
-    - UNION: 합집합으로 묶음, 중복 제거
-    - UNION ALL: 합집합으로 묶고 중복 제거하지 않음
-    - MINUS: 차집합 - 먼저 작성한 SELECT문의 결과에서 다음 결과를 빼 줌
-    - INTERSECT: 교집합
 
 
+
+WHERE문과 함께 사용하는 연산자
+
+- **논리 연산자 AND, OR**을 이용하여 **여러 개의 조건식 적용도 가능**: 조건식 갯수는 무제한
+
+  - 여러 개 조건식이 묶여 있을 때 NOT을 이용하여 한번에 뒤집는 경우 많음
+
+- **IN**을 이용하여 조건식 갯수를 줄일 수 있음
+
+  - OR을 여러 개 사용한 경우
+
+  - ```SQL
+    SELECT *
+    	FROM EMP
+    WHERE JOB = 'MANAGER'
+       OR JOB = 'SALESMAN'
+       OR JOB = 'CLERK';
+    ```
+
+  - IN을 사용한 경우
+
+  - ```SQL
+    SELECT *
+    	FROM EMP
+    WHERE JOB IN ('MANAGER', 'SALESMAN', 'CLERK');
+    ```
+
+- **BETWEEN A AND B**를 이용하여 조회하기
+
+  - ```SQL
+    SELECT *
+    	FROM EMP
+    WHERE SAL BETWEEN 2000 AND 3000;
+    ```
+
+- 일부 문자열이 포함된 데이터를 조회할 때 사용하는 **LIKE**
+
+  - ENAME 열 값이 대문자 S로 시작하는 데이터를 조회하라는 SQL문
+
+  - ```SQL
+    SELECT *
+    	FROM EMP
+    WHERE ENAME LIKE 'S%';
+    ```
+
+  - 와일드 카드: ( `%, _` ) 특정 문자 또는 문자열을 대체함
+
+    - 조회 성능에 영향을 미침
+
+  - **NOT LIKE**를 이용하여 일부 문자열을 배제하여 조회하는 것도 가능
+
+- **IS NULL**을 이용해 데이터가 NULL인 행을 조회하기
+
+  - ```SQL
+    SELECT *
+    	FROM EMP
+    WHERE COMM IS NULL;
+    ```
+
+  - NULL은 **비교 연산자로 비교하면 결과 값도 NULL**이 되기 때문에 IS NULL을 이용해야 함
+
+- **집합 연산자**
+
+  - 두 개 이상의 SELECT문의 결과 값을 연결함
+  - **열 갯수와 각각의 열의 자료형이 일치해야**(열 이름은 달라도 ok)연결 가능
+  - UNION: 합집합으로 묶음, 중복 제거
+  - UNION ALL: 합집합으로 묶고 중복 제거하지 않음
+  - MINUS: 차집합 - 먼저 작성한 SELECT문의 결과에서 다음 결과를 빼 줌
+  - INTERSECT: 교집합
+
+
+
+
+
+연산자 우선순위
+
+- 산술연산자 곱하기, 나누기
+- 산술연산자 더하기, 빼기
+- 대소 비교 연산자
+- 비교 연산자
+  - IS (NOT) NULL, (NOT) LIKE, (NOT) IN
+- BETWEEN 연산자
+- 논리 부정 연산자 (NOT)
+- 논리 연산자 AND
+- 논리 연산자 OR
 
 
 
