@@ -802,19 +802,43 @@ NULL 처리 함수
 
 다중행 함수
 
-- `SUM()`
-- `COUNT()`
-- `MAX()`
-- `MIN()`
-- `AVG()`
+- 여러 행을 바탕으로 하나의 결과 값을 도출해 내는 함수
+  - 다중행 함수를 사용한 SELECT 절에는 여러 행이 결과로 나올 수 있는 열을 함께 사용할 수 없음
+- `SUM(옵션, 합계를 구할 열이나 데이터)`
+  - 옵션으로 DISTINCT, ALL을 선택할 수 있음
+  - DISTINCT를 선택하면 같은 결과 값을 가진 데이터는 합계에서 한 번만 사용
+  - 아무것도 선택하지 않으면 디폴트로 ALL이 선택됨
+- `COUNT(옵션, 갯수를 구할 열이나 데이터)`
+  - SUM과 마찬가지로 DISTINCT, ALL을 선택할 수 있음
+- `MAX(옵션, 최댓값을 구할 열이나 데이터)`
+  - DISTINCT, ALL을 선택할 수 있음
+  - 날짜 및 문자 데이터도 사용할 수 있음 : 날짜는 최근일 수록 큼
+- `MIN(옵션, 최솟값을 구할 열이나 데이터)`
+  - DISTINCT, ALL을 선택할 수 있음
+- `AVG(옵션, 평균값을 구할 열이나 데이터)`
+  - DISTINCT, ALL을 선택할 수 있음
 
 
 
 
 
-`GROUP BY()`
+`GROUP BY`
 
-- 
+- 다중행 함수의 결과를 **특정 열 값을 기준으로 묶어서 출력**하고 싶을 때 사용함
+
+  - "**Project tuples into subsets** and calculate aggregater against each subset"
+
+  - 예) 각 부서별 평균 급여 출력하기
+
+    - ```sql
+      SELECT AVG(SAL), DEPTNO
+      	FROM EMP
+      GROUP BY DEPTNO;
+      ```
+
+- 다중행 함수를 사용하지 않은 일반 열은 GROUP BY 절에 명시하지 않으면 SELECT절에 사용할 수 없음
+
+  - 예) `SELECT ENAME, DEPTNO, AVG(SAL)`
 
 
 
@@ -822,7 +846,20 @@ NULL 처리 함수
 
 `HAVING`
 
-- 
+- GROUP BY 절을 통해 **그룹화된 결과 값의 범위를 제한**하는 데 사용함
+
+- WHERE절은 출력 대상 행을 제한하고, HAVING절은 **그룹화된 대상을 출력에서 제한**함
+
+  - WHERE절에서는 그룹화된 데이터를 제한하는 조건식을 지정할 수 없음
+
+  - WHERE절은 연산이 수행되기 전에 필터링을 하고, HAVING절은 연산 결과를 받아서 걸러내기 때문
+
+  - ```sql
+    SELECT DEPTNO, JOB, AVG(SAL)
+    	FROM EMP
+    WHERE AVG(SAL) > 2000			-- 오류 발생
+    GROUP BY DEPTNO, JOB;
+    ```
 
 
 
@@ -830,9 +867,47 @@ NULL 처리 함수
 
 그룹화 관련 함수
 
-- `ROLLUP()`
-- `CUBE()`
-- `GROUPING SETS()`
+- `ROLLUP`
+
+  - 그룹화된 열을 지정하여(여러 개 지정 가능) 해당 열의 합계를 출력
+
+  - 지정한 열을 소그룹부터 대그룹의 순서로 각 그룹별 결과를 출력하고 마지막에 총 합계를 출력
+
+  - ```sql
+    SELECT fact_1_id,
+           fact_2_id,
+           SUM(sales_value) AS sales_value
+    FROM   dimension_tab
+    GROUP BY ROLLUP (fact_1_id, fact_2_id)
+    ORDER BY fact_1_id, fact_2_id;
+    
+     FACT_1_ID  FACT_2_ID SALES_VALUE
+    ---------- ---------- -----------
+             1          1     4363.55
+             1          2     4794.76
+             1          3     4718.25
+             1          4     5387.45
+             1          5     5027.34
+             1               24291.35
+             2          1     5652.84
+             2          2     4583.02
+             2          3     5555.77
+             2          4     5936.67
+             2          5     4508.74
+             2               26237.04
+                             50528.39
+    ```
+
+- `CUBE`
+
+  - 그룹화된 열을 지정하여 해당 열의 합계를 출력
+  - 지정한 모든 열에서 가능한 조합의 결과를 모두 출력
+    - ROLL UP은 N+1개의 조합이 출력되고, CUBE는 2^N개의 조합이 출력됨
+
+- `GROUPING SETS`
+
+  - 그룹화된 열을 지정하여 해당 열의 합계를 출력
+  - ROOLUP, CUBE와 달리 계층별로 분류하지 않고 각각 따로 그룹화한 후 연산을 진행
 
 
 
@@ -846,23 +921,34 @@ NULL 처리 함수
 
 
 
+
+
 JOIN이란?
 
 - 중복을 없애기 위해서 **정규화**한 테이블들에서 원하는 결과를 도출하기 위해 **다시 조합**하는 것
 - 적어도 하나의 칼럼을 서로 공유하고 있는 테이블들을 연결하여 **데이터 검색에 활용**함
   - 보통 공통된 값인 PK 및 FK 값을 사용하여 JOIN
-  - JOIN 연산자에 따라, From 절의 JOIN 형태에 따라서 구별함
+  - JOIN 연산자에 따라, FROM절의 JOIN 형태에 따라서 구별함
+- 집합 연산자는 SELECT문의 결과 값을 세로로, JOIN은 가로로 연결한 것이라고 볼 수 있음
+
+
 
 
 
 JOIN의 종류
 
 - 연산자에 따른 분류
-  - EQUI JOIN : 두 테이블 간의 칼럼 값들이 서로 일치하는 경우(`=`연산자 사용)
-  - NON EQUI JOIN : 두 테이블 간의 칼럽 값들이 일치하니 않는 경우(비교 연산자 사용)
+  - EQUI JOIN
+    - 테이블을 연결한 후에 출력 행을 각 테이블의 특정 열에 일치하는 데이터를 기준으로 선정
+    - `=`연산자 사용
+  - NON EQUI JOIN
+    - EQUI JOIN 이외의 방식
+    - 비교 연산자나 BETWEEN A AND B 연산자를 사용
 - FROM 절의 JOIN 형태에 따른 분류
   - INNER JOIN : JOIN 조건에서 **값이 일치하는 행만** 반환
   - OUTER JOIN : JOIN 조건에서 **한쪽 값이 없더라도** 행을 반환
+
+
 
 
 
@@ -884,6 +970,8 @@ JOIN의 동작 방식
   - INNER TABLE이 대용량이고 OUTER TABLE이 작을 때(Hash영역 크기 제한) 좋음
   - 해시 키 값으로 사용되는 컬럼에 중복이 적어야 함
   - 배치에서 쓰면 좋음
+
+
 
 
 
@@ -916,6 +1004,8 @@ EQUI JOIN
 
 
 
+
+
 NATURAL JOIN
 
 - 두 테이블의 **동일한 이름을 가지는 칼럼을 모두 JOIN하는 것**
@@ -939,6 +1029,8 @@ NATURAL JOIN
 
 
 
+
+
 NON EQUI JOIN
 
 - 조인 대상 테이블의 **어떤 칼럼 값도 일치하지 않을 때** 사용하며 '=' 이외의 연산자를 사용
@@ -955,11 +1047,14 @@ NON EQUI JOIN
 
 
 
+
+
 SELF JOIN
 
 - **같은 테이블 내에서** 2개의 속성을 연결하여 EQUI JOIN을 하는 것
 
   - 주의할 점 : JOIN할 때 **별칭을 반드시 입력**해주어야 함
+  - JOIN할 테이블을 복사하여 조인하는 방법도 있으나 자원이 낭비되기 때문에 별칭 지정으로 해결
 
 - 한 테이블 내에 이미 종속 관계가 있을 때 사용(학번 - 학생 이름 - 선배의 학번)
 
@@ -968,6 +1063,8 @@ SELF JOIN
   FROM STUDENT a, STUDENT b
   WHERE a.S_SENIOR = b.S_NO;
   ```
+
+
 
 
 
@@ -991,6 +1088,8 @@ LEFT OUTER JOIN
 
 
 
+
+
 RIGHT OUTER JOIN
 
 - JOIN의 왼쪽에 표기된 데이터를 기준으로 OUTER JOIN을 수행함
@@ -1007,6 +1106,8 @@ RIGHT OUTER JOIN
 
 
 
+
+
 FULL OUTER JOIN
 
 - LEFT OUTER JOIN과 RIGHT OUTER JOIN의 결과를 합집합으로 처리한 결과와 동일함
@@ -1020,6 +1121,8 @@ FULL OUTER JOIN
     ```
 
   - 학과코드가 입력 안 된 학생이나 학과명이 없는 학과코드도 모두 출력됨
+
+
 
 
 
