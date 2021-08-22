@@ -929,7 +929,7 @@ JOIN이란?
 - 적어도 하나의 칼럼을 서로 공유하고 있는 테이블들을 연결하여 **데이터 검색에 활용**함
   - 보통 공통된 값인 PK 및 FK 값을 사용하여 JOIN
   - JOIN 연산자에 따라, FROM절의 JOIN 형태에 따라서 구별함
-- 집합 연산자는 SELECT문의 결과 값을 세로로, JOIN은 가로로 연결한 것이라고 볼 수 있음
+- 집합 연산자는 SELECT문의 결과 값을 세로로, **JOIN은 가로로 연결한 것**이라고 볼 수 있음
 
 
 
@@ -979,7 +979,7 @@ JOIN의 동작 방식
 
 ![INNER JOIN](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile9.uf.tistory.com%2Fimage%2F99799F3E5A8148D7036659)
 
-EQUI JOIN
+EQUI JOIN(NATURAL JOIN)
 
 - 기준 테이블과 JOIN할 테이블의 **칼럼 값들이 서로 정확하게 일치하는 경우** 겹치는 값들을 가져오는 것
 
@@ -996,36 +996,16 @@ EQUI JOIN
   - ```sql
     SELECT A.NAME, B.AGE
     FROM EX_TABLE A				--FROM EX_TABLE A, JOIN_TABLE B로 쓰면 JOIN구문 생략 가능
-    EQUI JOIN JOIN_TABLE B		--EQUI JOIN을 INNER JOIN으로 변경 가능
+    JOIN JOIN_TABLE B			--NATURAL JOIN이라고 작성시 ON생략 가능
     ON A.NO_EMP = B.NO_EMP
     ```
 
   - 사원 번호가 같은 사람에 대해 조회 : 사원 별 나이-이름 테이블이 된다
-
-
-
-
-
-NATURAL JOIN
-
-- 두 테이블의 **동일한 이름을 가지는 칼럼을 모두 JOIN하는 것**
-
-- EQUI JOIN에서 동일한 속성이 두 번 나타나게 되는데, **중복을 제거하여 같은 속성을 한번만 표기**함
-
-  - ```sql
-    SELECT A.NAME, B.AGE
-    FROM EX_TABLE A NATURAL JOIN JOIN_TABLE B
-    ```
-
-  - USING문을 사용하면 칼럼을 선택해서 JOIN할 수 있음
-
-  - ```sql
-    SELECT A.NAME, B.AGE
-    FROM EX_TABLE A JOIN JOIN_TABLE B
-    USING No_EMP;
-    ```
-
-- 테이블 별칭(alias)을 사용하면 오류가 발생함
+  
+  - **공통으로 존재하는 열은 어느 테이블에 속해있는지 반드시 명시해야 함**
+  
+    - 명시하지 않으면 오류 발생
+    - SQL문 작성 시 일반적으로 겹치지 않는 열 이름도 전부 테이블이나 별칭을 명시함
 
 
 
@@ -1035,7 +1015,7 @@ NON EQUI JOIN
 
 - 조인 대상 테이블의 **어떤 칼럼 값도 일치하지 않을 때** 사용하며 '=' 이외의 연산자를 사용
 
-- 사용 빈도가 매우 낮다고 함
+- 사용 빈도가 매우 낮음
 
 - 연산자 : BETWEEN AND, IS NULL, IS NOT NULL, IN, NOT IN, < , >, >=, <=
 
@@ -1078,12 +1058,14 @@ LEFT OUTER JOIN
 
 - 예) 학생 테이블과 학과 테이블에서 학과 코드 값이 같은 튜플을 JOIN하여 출력
 
+  - SQL-99 문법 기준
+  
   - ```sql
     SELECT s.S_NO, s.S_NAME, s.D_CODE, d.D_NAME
     FROM STUDENT s LEFT OUTER JOIN DEPARTMENT d
-    ON s.D_CODE = d.D_CODE;
+  ON s.D_CODE = d.D_CODE;
     ```
-
+  
   - INNER JOIN과 달리 **학과 정보가 NULL인 학생도 출력됨**
 
 
@@ -1094,14 +1076,16 @@ RIGHT OUTER JOIN
 
 - JOIN의 왼쪽에 표기된 데이터를 기준으로 OUTER JOIN을 수행함
 
-- LEFT OUTER JOIN이랑 다른 것은 위치 뿐이니 위 예제를 다른 문법으로 해보자
+- LEFT OUTER JOIN이랑 다른 것은 위치 뿐
 
+  - 기존 문법 기준
+  
   - ```sql
     SELECT s.S_NO, s.S_NAME, s.D_CODE, d.D_NAME
     FROM STUDENT s, DEPARTMENT d
-    WHERE s.D_CODE(+) = d.D_CODE;	--LEFT OUTER JOIN의 경우 오른쪽에 (+)를 붙이면 됨
+  WHERE s.D_CODE(+) = d.D_CODE;	--LEFT OUTER JOIN의 경우 오른쪽에 (+)를 붙이면 됨
     ```
-
+  
   - 이번엔 학생이 없는(학생 정보가 NULL인 학과)도 출력됨
 
 
@@ -1145,6 +1129,133 @@ CROSS JOIN
 
 
 ### 2.6. Subquery
+
+
+
+
+
+서브쿼리란?
+
+- SQL문을 실행하는 데 필요한 데이터를 추가로 조회하기 위해 **SQL문 내에서 사용하는 SELECT문**
+  - 서브쿼리의 SELECT절에 명시한 열은 메인쿼리의 비교 대상과 같은 자료형, 같은 갯수로 지정해야 함
+  - 서브쿼리의 **SELECT 결과 행 수**는 메인쿼리의 연산자 종류와 호환 가능해야 함
+- 결과 행 수에 따라 단일행 서브쿼리와 다중행 서브쿼리로 분류 가능
+
+
+
+
+
+단일행 서브쿼리
+
+- 실행 결과가 단 하나의 행으로 나오는 서브쿼리
+
+- 메인쿼리와 **단일행 연산자**를 사용하여 비교함
+
+  - 단일행 연산자 : `> , >=, =, <=, <, <>, ^=, !=`
+
+- 예) EMP 테이블에서 SCOTT보다 빨리 입사한 사원 목록
+
+  ```sql
+  SELECT *
+  	FROM EMP
+  WHERE HIREDATE < (SELECT HIREDATE
+                   	FROM EMP
+                   WHERE ENAME = 'SCOTT');
+  ```
+
+
+
+
+
+다중행 서브쿼리
+
+- 실행 결과 행이 여러 개로 나오는 서브쿼리
+
+- 메인쿼리와 **다중행 연산자**를 사용하여 비교함
+
+  - 다중행 연산자 : `IN, ANY, SOME, ALL, EXISTS`
+  - IN : 메인쿼리의 데이터가 서브쿼리의 결과 중 하나라도 일치한다면 TRUE
+  - ANY, SOME : 메인쿼리의 조건식을 만족하는 서브쿼리의 결과가 하나 이상이면 TRUE
+  - ALL : 메인쿼리의 조건식을 서브쿼리의 결과가 모두 만족하면 TRUE
+  - EXISTS : 서브쿼리의 결과가 존재하면 TRUE
+
+- 예) 30번 부서에서 가장 높은 급여를 받는 사원보다 많은 급여를 받는 사원 정보
+
+  ```sql
+  SELECT *
+  	FROM EMP
+  WHERE SAL > (SELECT MAX(SAL)
+              	FROM EMP
+              WHERE DEPTNO = 30);
+  ```
+
+
+
+
+
+다중열 서브쿼리
+
+- 서브쿼리의 SELECT절에 비교할 데이터를 여러 개 지정하는 방식
+
+- 메인쿼리에 비교할 열을 괄호로 묶어 명시함
+
+- ```sql
+  SELECT *
+  	FROM EMP
+  WHERE (DEPTNO, SAL) IN (SELECT DEPTNO, MAX(SAL)
+                         		FROM EMP
+                         	GROUP BY DEPTNO);
+  ```
+
+
+
+
+
+FROM절에 사용하는 서브쿼리와 WITH절
+
+- 인라인 뷰 : FROM절에 사용하는 서브쿼리로, 테이블의 일부 데이터를 추출해 옴
+
+  - 테이블 내 **데이터 규모가 너무 크거나 현재 작업에 불필요한 열이 너무 많은 경우**에 사용 가능
+
+  - ```sql
+    SELECT E10.EMPNO, E10.ENAME, E10.DEPTNO, D.DNAME, D.LOC
+    	FROM (SELECT * FROM EMP WHERE DEPTNO = 10) E10,
+    		(SELECT * FROM DEPT) D
+    WHERE E10.DEPTNO = D.DEPTNO;
+    ```
+
+- WITH절 : FROM절에 너무 많은 서브쿼리를 사용하여 **가독성이 떨어지는 것을 방지하기 위해 메인쿼리와 분리**
+
+  - ```sql
+    WITH
+    E10 AS (SELECT * FROM EMP WHERE DEPTNO = 10),
+    D 	AS (SELECT * FROM DEPT)
+    SELECT E10.EMPNO, E10.ENAME, E10.DEPTNO, D.DNAME, D.LOC
+    	FROM E10, D
+    WHERE E10.DEPTNO = D.DEPTNO;
+    ```
+
+
+
+
+
+SELECT절에 사용하는 서브쿼리
+
+- 스칼라 서브쿼리 : SELECT절에 하나의 열 영역으로서 결과를 출력할 수 있음
+
+- **반드시 하나의 결과만 반환하도록 작성**해야 함
+
+- ```sql
+  SELECT EMPNO, ENAME, JOB, SAL,
+  	(SELECT GRADE
+      	FROM SALGRADE
+      	WHERE E,SAL BETWEEN LOSAL AND HISAL) AS SALGRADE,
+      DEPTNO,
+      (SELECT DNAME
+      	FROM DEPT
+      	WHERE E.DEPTNO = DEPT.DEPTNO) AS DNAME
+  FROM EMP E;
+  ```
 
 
 
